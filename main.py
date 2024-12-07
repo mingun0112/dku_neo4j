@@ -10,7 +10,7 @@ import re
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36'}
 d_list = []
 start_data = 20241201
-end_data = 20241202
+end_data = 20241207
 for date_int in range(start_data, end_data):
     date = str(date_int)
     url = "https://news.naver.com/main/ranking/popularDay.nhn?date=" + date
@@ -138,7 +138,7 @@ with greeter.session() as session:
         nouns_list_c = ent_keyword.split(', ') 
         # print( df.iloc[idx]['title_c'])
         # print(nouns_list_c)
-        session.write_transaction(add_article, title=df.iloc[idx]['title_c_neo4j'], date=df.iloc[idx]['date'],
+        session.execute_write(add_article, title=df.iloc[idx]['title_c_neo4j'], date=df.iloc[idx]['date'],
                                   media=df.iloc[idx]['media'], keyword=nouns_list_c)
-    session.write_transaction(add_media)
-    session.write_transaction(add_keyword)
+    session.execute_write(add_media)
+    session.execute_write(add_keyword)
