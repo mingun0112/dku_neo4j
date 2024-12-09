@@ -4,3 +4,4 @@ konlpy
 neo4j
 networkx
 matplotlib
+pandas

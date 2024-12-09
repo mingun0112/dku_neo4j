@@ -5,6 +5,8 @@ sudo apt update -y
 echo "Installing Python and pip..."
 sudo apt install python3 python3-pip -y
 
+pip3 install -r requirements.txt
+
 sudo apt-get install ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
