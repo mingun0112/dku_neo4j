@@ -4,7 +4,11 @@ import pandas as pd
 import numpy as np
 import re
 
+from konlpy.tag import Kkma
+from konlpy.tag import Komoran
 
+
+print("크롤링 네이버 뉴스")
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36'}
 d_list = []
 start_data = 20241201
@@ -29,8 +33,6 @@ for date_int in range(start_data, end_data):
 df = pd.DataFrame(d_list)
 
 
-
-""" 필요 없는 문자 제거 """
 def clean_text(row):
     text = row['title']
     pattern = '([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)'
@@ -59,10 +61,6 @@ df['title_c'] = df.apply(clean_text, axis=1)
 
 
 
-""" 키워드 추출 from title """
-from konlpy.tag import Kkma
-from konlpy.tag import Komoran
-
 kkma = Kkma()
 komoran = Komoran()
 df['keyword'] = {}
@@ -72,6 +70,7 @@ for idx_line in range(len(df)):
     nouns_list = komoran.nouns(df['title_c'].loc[idx_line])
     nouns_list_c = [nouns for nouns in nouns_list if len(nouns) > 1] 
     df.loc[idx_line, 'keyword'] = ', '.join(nouns_list_c)
+    print("키워드", nouns_list_c)
 
 df = df[df['media'] != '코리아헤럴드'] 
 df = df[df['media'] != '주간경향']  
@@ -98,7 +97,15 @@ def add_keyword(tx):
            "MERGE (a)-[r:Include]->(b)")
 
 
-
+def get_common_keywords(tx):
+    query = """
+    MATCH (a:Media)-[:Publish]->(:Article)-[:Include]->(k:Keyword)<-[:Include]-(:Article)<-[:Publish]-(b:Media)
+    WHERE a.name='KBS' AND b.name='MBC'
+    RETURN DISTINCT k.name AS keyword
+    """
+    result = tx.run(query)
+    common_keywords = [record["keyword"] for record in result]
+    return common_keywords
 
 def clean_text_for_neo4j(row):
     text = row['title_c']
@@ -120,3 +127,20 @@ with greeter.session() as session:
                                   media=df.iloc[idx]['media'], keyword=nouns_list_c)
     session.execute_write(add_media)
     session.execute_write(add_keyword)
+
+    common_keywords = session.execute_write(get_common_keywords)
+print("")
+print("")
+print("")
+print("")
+print("")
+print("")
+print("")
+print("")
+
+print("KBS와 MBC에서 겹치는 키워드들:")
+print("-" * 40) 
+for keyword in common_keywords:
+    print(f"- {keyword}")
+print("-" * 40) 
+

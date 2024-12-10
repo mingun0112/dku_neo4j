@@ -22,15 +22,12 @@ sudo apt-get update
 
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-tmux new-session -d -s docker-demon 
-tmux send-keys -t docker-demon "dockerd" C-m 
-tmux new-session -d -s docker-neo4j    
-tmux send-keys -t docker-neo4j "docker run \
-  --publish=7474:7474 \
-  --publish=7687:7687 \
-  --volume=$HOME/neo4j/data:/data \
-  --name=neo4j \
-  --env=NEO4J_AUTH=neo4j/password \
-  neo4j" C-m 
+sudo docker run --publish=7474:7474 --publish=7687:7687 \
+    --volume=$HOME/neo4j/data:/data \
+    --name=neo4j \
+    --env=NEO4J_AUTH=neo4j/password \
+    -d neo4j
 
-
+sleep 20
+echo "python 실행"
+python3 main.py
